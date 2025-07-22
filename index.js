@@ -48,38 +48,58 @@ app.get('/data/:name', async (req, res) => {
   }
 });
 
-// 4. GET /page: show HTML page of file list with delete buttons
+// 4. GET /page: show HTML page of file list with styles
 app.get('/page', async (req, res) => {
   try {
     const files = await fs.readdir(DATA_DIR);
     const jsonFiles = files.filter(f => f.endsWith('.json'));
     const listItems = jsonFiles.map(f => `
-      <li>
+      <li class="file-item">
         <a href="/data/${f}" target="_blank">${f}</a>
-        <button onclick="deleteFile('${f}')">Delete</button>
+        <button class="delete-btn" onclick="confirmDeleteFile('${f}')">Delete</button>
       </li>
     `).join('');
     const html = `
       <html>
         <head>
           <title>JSON File List</title>
+          <style>
+            body { font-family: Arial, sans-serif; background: #f7f7f7; margin: 0; padding: 0; }
+            .container { max-width: 600px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #ccc; padding: 24px; }
+            h1 { text-align: center; color: #333; }
+            ul { list-style: none; padding: 0; }
+            .file-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
+            .file-item:last-child { border-bottom: none; }
+            a { color: #0078d4; text-decoration: none; font-weight: 500; }
+            a:hover { text-decoration: underline; }
+            .delete-btn { background: #e53e3e; color: #fff; border: none; border-radius: 4px; padding: 6px 12px; cursor: pointer; transition: background 0.2s; }
+            .delete-btn:hover { background: #c53030; }
+            .delete-all-btn { background: #3182ce; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; margin-bottom: 16px; cursor: pointer; transition: background 0.2s; display: block; margin-left: auto; margin-right: auto; }
+            .delete-all-btn:hover { background: #2b6cb0; }
+          </style>
           <script>
-            function deleteFile(name) {
-              fetch('/data/' + name, { method: 'DELETE' })
-                .then(res => res.json())
-                .then(() => location.reload());
+            function confirmDeleteFile(name) {
+              if (confirm('Are you sure you want to delete ' + name + '?')) {
+                fetch('/data/' + name, { method: 'DELETE' })
+                  .then(res => res.json())
+                  .then(() => location.reload());
+              }
             }
-            function deleteAll() {
-              fetch('/data/all', { method: 'DELETE' })
-                .then(res => res.json())
-                .then(() => location.reload());
+            function confirmDeleteAll() {
+              if (confirm('Are you sure you want to delete ALL files?')) {
+                fetch('/data/all', { method: 'DELETE' })
+                  .then(res => res.json())
+                  .then(() => location.reload());
+              }
             }
           </script>
         </head>
         <body>
-          <h1>Received JSON Files</h1>
-          <button onclick="deleteAll()">Delete All Files</button>
-          <ul>${listItems}</ul>
+          <div class="container">
+            <h1>Received JSON Files</h1>
+            <button class="delete-all-btn" onclick="confirmDeleteAll()">Delete All Files</button>
+            <ul>${listItems}</ul>
+          </div>
         </body>
       </html>
     `;
