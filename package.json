@@ -1,0 +1,20 @@
+{
+  "name": "fooweb",
+  "version": "1.0.0",
+  "description": "Node.js Express API with endpoints to save, list, and retrieve JSON data.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [
+    "express",
+    "api",
+    "json"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.0.0"
+  }
+}
