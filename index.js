@@ -48,17 +48,37 @@ app.get('/data/:name', async (req, res) => {
   }
 });
 
-// 4. GET /page: show HTML page of file list
+// 4. GET /page: show HTML page of file list with delete buttons
 app.get('/page', async (req, res) => {
   try {
     const files = await fs.readdir(DATA_DIR);
     const jsonFiles = files.filter(f => f.endsWith('.json'));
-    const listItems = jsonFiles.map(f => `<li><a href="/data/${f}">${f}</a></li>`).join('');
+    const listItems = jsonFiles.map(f => `
+      <li>
+        <a href="/data/${f}" target="_blank">${f}</a>
+        <button onclick="deleteFile('${f}')">Delete</button>
+      </li>
+    `).join('');
     const html = `
       <html>
-        <head><title>JSON File List</title></head>
+        <head>
+          <title>JSON File List</title>
+          <script>
+            function deleteFile(name) {
+              fetch('/data/' + name, { method: 'DELETE' })
+                .then(res => res.json())
+                .then(() => location.reload());
+            }
+            function deleteAll() {
+              fetch('/data/all', { method: 'DELETE' })
+                .then(res => res.json())
+                .then(() => location.reload());
+            }
+          </script>
+        </head>
         <body>
           <h1>Received JSON Files</h1>
+          <button onclick="deleteAll()">Delete All Files</button>
           <ul>${listItems}</ul>
         </body>
       </html>
@@ -66,6 +86,29 @@ app.get('/page', async (req, res) => {
     res.send(html);
   } catch (err) {
     res.status(500).send('Failed to list files');
+  }
+});
+
+// 5. DELETE /data/:name: delete file by name, or all files if name = 'all'
+app.delete('/data/:name', async (req, res) => {
+  const filename = req.params.name;
+  if (filename === 'all') {
+    try {
+      const files = await fs.readdir(DATA_DIR);
+      const jsonFiles = files.filter(f => f.endsWith('.json'));
+      await Promise.all(jsonFiles.map(f => fs.unlink(path.join(DATA_DIR, f))));
+      res.json({ message: 'All files deleted' });
+    } catch (err) {
+      res.status(500).json({ error: 'Failed to delete all files' });
+    }
+  } else {
+    const filepath = path.join(DATA_DIR, filename);
+    try {
+      await fs.unlink(filepath);
+      res.json({ message: `File ${filename} deleted` });
+    } catch (err) {
+      res.status(404).json({ error: 'File not found or failed to delete' });
+    }
   }
 });
 
