@@ -15,6 +15,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "express": "^5.0.0"
+    "express": "^5.0.0",
+    "archiver": "^5.3.2"
   }
 }
