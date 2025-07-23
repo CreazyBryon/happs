@@ -2,7 +2,7 @@
 <html>
 
 <head>
-  <title>JSON File List</title>
+  <title>PacApps Data</title>
   <meta charset="utf-8" />
   <style>
     body {
@@ -87,7 +87,7 @@
     }
 
     .delete-all-btn {
-      background: #3182ce;
+      background: #e53e3e;
       color: #fff;
       border: none;
       border-radius: 4px;
@@ -101,7 +101,7 @@
     }
 
     .delete-all-btn:hover {
-      background: #2b6cb0;
+      background: #c53030;
     }
   </style>
   <script>
@@ -152,10 +152,10 @@
 
 <body>
   <div class="container">
-    <h1>Received JSON Files</h1>
+    <h1>Data List</h1>
     <div style="display: flex; gap: 12px; margin-bottom: 16px; justify-content: center;">
-      <button class="delete-all-btn" onclick="confirmDeleteAll()">Delete All Files</button>
       <button class="delete-all-btn" style="background:#38a169;" onclick="downloadAll()">Download All (ZIP)</button>
+      <button class="delete-all-btn" onclick="confirmDeleteAll()">Delete All Files</button>
     </div>
     <ul id="file-list"></ul>
   </div>
