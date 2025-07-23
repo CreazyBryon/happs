@@ -14,17 +14,24 @@ fs.mkdir(DATA_DIR, { recursive: true });
 
 // 1. POST /data: receive any JSON, save to file by time
 app.post('/data', async (req, res) => {
-  const jsonData = req.body;
-  const headers = req.headers;
-  const now = new Date();
-  // Format: YYYY-MM-DD_HH-mm-ss
-  const timestamp = now.toISOString().replace(/[:.]/g, '');
-  const localTime = now.toLocaleString();
-  const filename = `recv_${timestamp}.json`;
-  const filepath = path.join(DATA_DIR, filename);
-  const toSave = { "request_local_time":localTime, "request_headers":headers, "request_body": jsonData };
-
   try {
+    const files = await fs.readdir(DATA_DIR);
+    const jsonFiles = files.filter(f => f.endsWith('.json'));
+    if (jsonFiles.length >= 100) {
+      return res.status(429).json({ error: 'File limit reached. Cannot receive more data.' });
+    }
+
+    const jsonData = req.body;
+    const headers = req.headers;
+    const now = new Date();
+    // Format: YYYY-MM-DD_HH-mm-ss
+    const timestamp = now.toISOString().replace(/[:.]/g, '');
+    const localTime = now.toLocaleString();
+    const filename = `recv_${timestamp}.json`;
+    const filepath = path.join(DATA_DIR, filename);
+    const toSave = { "request_local_time":localTime, "request_headers":headers, "request_body": jsonData };
+
+
     await fs.writeFile(filepath, JSON.stringify(toSave, null, 2), 'utf-8');
     res.json({ message: 'Data and headers saved', filename });
   } catch (err) {
