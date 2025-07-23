@@ -12,8 +12,25 @@ app.use(express.json());
 // Ensure data directory exists
 fs.mkdir(DATA_DIR, { recursive: true });
 
+
+function basicAuth(req, res, next) {
+  const auth = req.headers['authorization'];
+  if (!auth || !auth.startsWith('Basic ')) {
+    res.set('WWW-Authenticate', 'Basic realm="Restricted"');
+    return res.status(401).send('Authentication required.');
+  }
+  const base64 = auth.split(' ')[1];
+  const [user, pass] = Buffer.from(base64, 'base64').toString().split(':');
+  // Change these to your desired username and password
+  if (user === 'skidata' && pass === 'pass123') {
+    return next();
+  }
+  res.set('WWW-Authenticate', 'Basic realm="Restricted"');
+  return res.status(401).send('Invalid credentials.');
+}
+
 // 1. POST /data: receive any JSON, save to file by time
-app.post('/data', async (req, res) => {
+app.post('/data',basicAuth, async (req, res) => {
   try {
     const files = await fs.readdir(DATA_DIR);
     const jsonFiles = files.filter(f => f.endsWith('.json'));
@@ -63,7 +80,7 @@ app.get('/data/:name', async (req, res) => {
 });
 
 // 4. GET /page: show HTML page of file list with styles
-app.get('/page', async (req, res) => {
+app.get('/page',basicAuth, async (req, res) => {
   try {
     const files = await fs.readdir(DATA_DIR);
     const jsonFiles = files.filter(f => f.endsWith('.json'));
