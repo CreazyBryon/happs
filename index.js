@@ -12,23 +12,20 @@ app.use(express.json());
 fs.mkdir(DATA_DIR, { recursive: true });
 
 // 1. POST /data: receive any JSON, save to file by time
-app.post('/data', (req, res) => {
-    const timestamp = Date.now();
-    const filename = `data_${timestamp}.json`;
-    const dataToSave = {
-        headers: req.headers,
-        body: req.body
-    };
-    fs.writeFile(
-        path.join(__dirname, 'data', filename),
-        JSON.stringify(dataToSave, null, 2),
-        (err) => {
-            if (err) {
-                return res.status(500).json({ error: 'Failed to save data.' });
-            }
-            res.json({ message: 'Data saved.', filename });
-        }
-    );
+app.post('/data', async (req, res) => {
+  const jsonData = req.body;
+  const headers = req.headers;
+  const timestamp = Date.now();
+  const filename = `recv_${timestamp}.json`;
+  const filepath = path.join(DATA_DIR, filename);
+  const toSave = { "request_headers":headers, "request_body": jsonData };
+    
+  try {
+    await fs.writeFile(filepath, JSON.stringify(toSave, null, 2), 'utf-8');
+    res.json({ message: 'Data and headers saved', filename });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to save file' });
+  }
 });
 
 // 2. GET /list: list all received JSON files
