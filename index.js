@@ -44,7 +44,7 @@ app.post('/data/v1/postEvent',basicAuth, async (req, res) => {
     // Format: YYYY-MM-DD_HH-mm-ss
     const timestamp = now.toISOString().replace(/[:.]/g, '');
     const localTime = now.toLocaleString();
-    const filename = `recv_${timestamp}.json`;
+    const filename = `evt_${timestamp}.json`;
     const filepath = path.join(DATA_DIR, filename);
     const toSave = { "request_local_time":localTime, "request_headers":headers, "request_body": jsonData };
 
@@ -58,6 +58,19 @@ app.post('/data/v1/postEvent',basicAuth, async (req, res) => {
 // 2. GET /list: list all received JSON files
 app.get('/data/v1/health', async (req, res) => {
   try {
+
+    const jsonData = req.body;
+    const headers = req.headers;
+    const now = new Date();
+    // Format: YYYY-MM-DD_HH-mm-ss
+    const timestamp = now.toISOString().replace(/[:.]/g, '');
+    const localTime = now.toLocaleString();
+    const filename = `hel_${timestamp}.json`;
+    const filepath = path.join(DATA_DIR, filename);
+    const toSave = { "request_local_time":localTime, "request_headers":headers, "request_body": jsonData };
+
+    await fs.writeFile(filepath, JSON.stringify(toSave, null, 2), 'utf-8');
+
     res.json({"online":"up"});
   } catch (err) {
     res.status(500).json({ error: 'Failed to list files' });
