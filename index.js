@@ -40,18 +40,25 @@ app.post('/data/v1/postEvent',basicAuth, async (req, res) => {
 
     const jsonData = req.body;
     const headers = req.headers;
+    let evType = "unkn";
+    if(headers["ce-type"]){
+ 
+      evType = headers["ce-type"].split('.').pop();
+    }
     const now = new Date();
-    // Format: YYYY-MM-DD_HH-mm-ss
     const timestamp = now.toISOString().replace(/[:.]/g, '');
     const localTime = now.toLocaleString();
-    const filename = `evt_${timestamp}.json`;
+
+    const filename = `ski_${evType}_${timestamp}.json`;
     const filepath = path.join(DATA_DIR, filename);
     const toSave = { "request_local_time":localTime, "request_headers":headers, "request_body": jsonData };
 
     await fs.writeFile(filepath, JSON.stringify(toSave, null, 2), 'utf-8');
+ 
     res.json({ message: 'Data and headers saved', filename });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to save file' });
+ 
+    res.status(500).json({ error: 'Failed to save file:'+err });
   }
 });
 
@@ -65,7 +72,7 @@ app.get('/data/v1/health', async (req, res) => {
     // Format: YYYY-MM-DD_HH-mm-ss
     const timestamp = now.toISOString().replace(/[:.]/g, '');
     const localTime = now.toLocaleString();
-    const filename = `hel_${timestamp}.json`;
+    const filename = `sji_health_${timestamp}.json`;
     const filepath = path.join(DATA_DIR, filename);
     const toSave = { "request_local_time":localTime, "request_headers":headers, "request_body": jsonData };
 
