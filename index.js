@@ -60,7 +60,7 @@ app.post('/data/v1/postEvent',basicAuth, async (req, res) => {
     const timestamp = now.toISOString().replace(/[:.]/g, '');
     const localTime = now.toLocaleString();
 
-    const filename = `ski_${evType}_${evCode}_${devId}_${timestamp}.json`;
+    const filename = `ski_${evType}_${devId}_${evCode}_${timestamp}.json`;
     const filepath = path.join(DATA_DIR, filename);
     const toSave = { "request_local_time":localTime, "request_headers":headers, "request_body": jsonData };
 
