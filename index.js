@@ -34,22 +34,33 @@ app.post('/data/v1/postEvent',basicAuth, async (req, res) => {
   try {
     const files = await fs.readdir(DATA_DIR);
     const jsonFiles = files.filter(f => f.endsWith('.json'));
-    if (jsonFiles.length >= 200) {
+    if (jsonFiles.length >= 100) {
       return res.status(429).json({ error: 'File limit reached. Cannot receive more data.' });
     }
 
     const jsonData = req.body;
     const headers = req.headers;
+
     let evType = "unkn";
     if(headers["ce-type"]){
- 
       evType = headers["ce-type"].split('.').pop();
     }
+
+    let evCode = "0";
+    if(jsonData.systemEventCode){
+      evCode = jsonData.systemEventCode;
+    }
+
+    let devId = "0";
+    if(jsonData.deviceId){
+      devId = jsonData.deviceId;
+    }
+
     const now = new Date();
     const timestamp = now.toISOString().replace(/[:.]/g, '');
     const localTime = now.toLocaleString();
 
-    const filename = `ski_${evType}_${timestamp}.json`;
+    const filename = `ski_${evType}_${evCode}_${devId}_${timestamp}.json`;
     const filepath = path.join(DATA_DIR, filename);
     const toSave = { "request_local_time":localTime, "request_headers":headers, "request_body": jsonData };
 
