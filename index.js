@@ -34,7 +34,7 @@ app.post('/data/v1/postEvent',basicAuth, async (req, res) => {
   try {
     const files = await fs.readdir(DATA_DIR);
     const jsonFiles = files.filter(f => f.endsWith('.json'));
-    if (jsonFiles.length >= 100) {
+    if (jsonFiles.length >= 1000) {
       return res.status(429).json({ error: 'File limit reached. Cannot receive more data.' });
     }
 
